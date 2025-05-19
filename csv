@@ -1,0 +1,78 @@
+import nltk
+from transformers import pipeline, AutoTokenizer, AutoModelForSeq2SeqLM
+from langdetect import detect
+
+# Download necessary NLTK models
+nltk.download('punkt')
+nltk.download('averaged_perceptron_tagger')
+
+# Sample text
+text = "Apple Inc. is looking at buying a UK startup for $1 billion. This move could significantly enhance their AI capabilities."
+
+def nlp_task_tester(text):
+    print("\n--- Original Text ---")
+    print(text)
+
+    # 1. Tokenization
+    print("\n--- Tokenization ---")
+    from nltk.tokenize import word_tokenize
+    tokens = word_tokenize(text)
+    print(tokens)
+
+    # 2. POS Tagging
+    print("\n--- Part-of-Speech Tagging ---")
+    pos_tags = nltk.pos_tag(tokens)
+    print(pos_tags)
+
+    # 3. Named Entity Recognition (NER)
+    print("\n--- Named Entity Recognition ---")
+    ner_pipeline = pipeline("ner", grouped_entities=True)
+    entities = ner_pipeline(text)
+    for entity in entities:
+        print(entity)
+
+    # 4. Sentiment Analysis
+    print("\n--- Sentiment Analysis ---")
+    sentiment_pipeline = pipeline("sentiment-analysis")
+    sentiment = sentiment_pipeline(text)
+    print(sentiment)
+
+    # 5. Summarization
+    print("\n--- Summarization ---")
+    summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+    summary = summarizer(text, max_length=50, min_length=20, do_sample=False)
+    print(summary[0]['summary_text'])
+
+    # 6. Question Answering
+    print("\n--- Question Answering ---")
+    qa_pipeline = pipeline("question-answering")
+    question = "What is Apple looking to buy?"
+    answer = qa_pipeline(question=question, context=text)
+    print(f"Q: {question}\nA: {answer['answer']}")
+
+    # 7. Translation (English to French)
+    print("\n--- Translation (EN -> FR) ---")
+    translator = pipeline("translation_en_to_fr", model="Helsinki-NLP/opus-mt-en-fr")
+    translated = translator(text, max_length=100)
+    print(translated[0]['translation_text'])
+
+    # 8. Text Generation
+    print("\n--- Text Generation ---")
+    generator = pipeline("text-generation", model="gpt2")
+    gen_text = generator("AI will revolutionize", max_length=30, num_return_sequences=1)
+    print(gen_text[0]['generated_text'])
+
+    # 9. Text Classification (Topic/Label prediction)
+    print("\n--- Text Classification ---")
+    classifier = pipeline("zero-shot-classification")
+    labels = ["technology", "finance", "sports", "health"]
+    result = classifier(text, candidate_labels=labels)
+    print(result)
+
+    # 10. Language Detection
+    print("\n--- Language Detection ---")
+    lang = detect(text)
+    print(f"Detected Language: {lang}")
+
+# Run the tester
+nlp_task_tester(text)
